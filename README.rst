@@ -76,6 +76,11 @@ Counter-based OTPs
     hotp.verify('316439', 1401) # => True
     hotp.verify('316439', 1402) # => False
 
+Command Line
+~~~~~~~~~~~~
+
+To use this as a command line utility instead of as a library, see ``unsafe-tauthenticator.sh`` and then ``unsafe-tauthenticator.sh``.
+
 Generating a Secret Key
 ~~~~~~~~~~~~~~~~~~~~~~~
 A helper function is provided to generate a 16 character base32 secret, compatible with Google Authenticator and other OTP apps::
