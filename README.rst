@@ -79,7 +79,7 @@ Counter-based OTPs
 Command Line
 ~~~~~~~~~~~~
 
-To use this as a command line utility instead of as a library, see ``unsafe-tauthenticator.sh`` and then ``unsafe-tauthenticator.sh``.
+To use this as a command line utility instead of as a library, see ``unsafe-tauthenticator.sh`` and then ``tauthenticator.sh``.
 
 Generating a Secret Key
 ~~~~~~~~~~~~~~~~~~~~~~~
