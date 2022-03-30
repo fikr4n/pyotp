@@ -40,3 +40,6 @@ venv
 
 # Type checking
 .mypy_cache
+
+# Secrets
+/secret/
