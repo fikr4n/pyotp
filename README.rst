@@ -20,7 +20,7 @@ minimum, application implementers should follow this checklist:
 - Ensure HOTP/TOTP secret confidentiality by storing secrets in a controlled access database
 - Deny replay attacks by rejecting one-time passwords that have been used by the client (this requires storing the most 
   recently authenticated timestamp, OTP, or hash of the OTP in your database, and rejecting the OTP when a match is seen)
-- Throttle brute-force attacks against your application's login functionality
+- Throttle (rate limit) brute-force attacks against your application's login functionality (see RFC 4226, section 7.3)
 - When implementing a "greenfield" application, consider supporting
   `FIDO U2F <https://en.wikipedia.org/wiki/Universal_2nd_Factor>`_/`WebAuthn <https://www.w3.org/TR/webauthn/>`_ in
   addition to HOTP/TOTP. U2F uses asymmetric cryptography to avoid using a shared secret design, which strengthens your
@@ -55,6 +55,9 @@ Time-based OTPs
 ~~~~~~~~~~~~~~~
 ::
 
+    import pyotp
+    import time
+
     totp = pyotp.TOTP('base32secret3232')
     totp.now() # => '492039'
 
@@ -67,6 +70,8 @@ Counter-based OTPs
 ~~~~~~~~~~~~~~~~~~
 ::
 
+    import pyotp
+    
     hotp = pyotp.HOTP('base32secret3232')
     hotp.at(0) # => '260182'
     hotp.at(1) # => '055283'
@@ -83,13 +88,13 @@ To use this as a command line utility instead of as a library, see ``unsafe-taut
 
 Generating a Secret Key
 ~~~~~~~~~~~~~~~~~~~~~~~
-A helper function is provided to generate a 16 character base32 secret, compatible with Google Authenticator and other OTP apps::
+A helper function is provided to generate a 32-character base32 secret, compatible with Google Authenticator and other OTP apps::
 
     pyotp.random_base32()
 
 Some applications want the secret key to be formatted as a hex-encoded string::
 
-    pyotp.random_hex()  # returns a 32-character hex-encoded secret
+    pyotp.random_hex()  # returns a 40-character hex-encoded secret
 
 Google Authenticator Compatible
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -105,7 +110,7 @@ ability to generate provisioning URIs for use with the QR Code scanner built int
 
     >>> 'otpauth://hotp/Secure%20App:alice%40google.com?secret=JBSWY3DPEHPK3PXP&issuer=Secure%20App&counter=0'
 
-This URL can then be rendered as a QR Code (for example, using https://github.com/neocotic/qrious) which can then be scanned
+This URL can then be rendered as a QR Code (for example, using https://github.com/soldair/node-qrcode) which can then be scanned
 and added to the users list of OTP credentials.
 
 Parsing these URLs is also supported::

@@ -1,19 +1,16 @@
 SHELL=/bin/bash -e
 
-wheel: lint clean
-	./setup.py bdist_wheel
-
-test_deps: requirements-dev.txt
-	pip install -r requirements-dev.txt
+test_deps:
+	pip install coverage flake8 mypy sphinx wheel
 
 lint: test_deps
-	python setup.py flake8
+	flake8 src
 
 typecheck: test_deps
 	mypy --strict --no-warn-unused-ignores src
 
 test: lint typecheck
-	coverage run --branch --include 'src/*' setup.py test
+	coverage run --branch --include 'src/*' -m unittest discover -s test -v
 
 init_docs: test_deps
 	cd docs; sphinx-quickstart
@@ -21,14 +18,17 @@ init_docs: test_deps
 docs: test_deps
 	sphinx-build docs docs/html
 
-install: clean
-	python ./setup.py bdist_wheel
+build:
+	pip install build
+	python -m build
+
+install: clean build
 	pip install --upgrade dist/*.whl
 
 clean:
 	-rm -rf build dist
 	-rm -rf *.egg-info
 
-.PHONY: wheel lint test test_deps docs install clean
+.PHONY: lint test test_deps docs build install clean
 
 include common.mk
