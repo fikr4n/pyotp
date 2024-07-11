@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 
-# This requires `watch` and `gpg`.
+# This requires `gpg`.
 #
 # Setup:
 # 1. Scan the QR code, take the secret param. For example, if the scanned URI
@@ -18,7 +18,12 @@
 
 secret_file=${1:-default}
 
-cd `dirname $0`/src
-watch gpg -dq "../secret/$secret_file" \| \
-  python3 -c \''import pyotp;print(pyotp.TOTP(input()).now())'\'
+cd $(dirname "$0")/src
+while true; do
+  script='import pyotp; o = pyotp.TOTP(input()).now(); print(o[:3], o[3:])'
+  otp=$(gpg -dq "../secret/$secret_file" | python3 -c "$script")
+  [ "$otp" = "$old_otp" ] || echo "$otp"
+  old_otp="$otp"
+  sleep 5
+done
 

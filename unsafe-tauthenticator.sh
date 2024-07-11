@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # This is simpler but unsafe, consider tauthenticator.sh.
 #
@@ -16,7 +16,12 @@
 
 secret_file=${1:-default}
 
-cd `dirname $0`/src
-python3 -c 'import pyotp;print(pyotp.TOTP(input()).now())' < \
-  "../secret/$secret_file"
+cd $(dirname "$0")/src
+while true; do
+  script='import pyotp; o = pyotp.TOTP(input()).now(); print(o[:3], o[3:])'
+  otp=$(python3 -c "$script" < "../secret/$secret_file")
+  [ "$otp" = "$old_otp" ] || echo "$otp"
+  old_otp="$otp"
+  sleep 5
+done
 
