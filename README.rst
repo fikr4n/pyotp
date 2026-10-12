@@ -84,7 +84,18 @@ Counter-based OTPs
 Command Line
 ~~~~~~~~~~~~
 
-To use this as a command line utility instead of as a library, see ``unsafe-tauthenticator.sh`` and then ``tauthenticator.sh``.
+To use this as a command line utility instead of as a library::
+
+    # Basic
+    python -m pyotp < secret
+
+    # Basic, but can be run from anywhere without installing
+    unsafe-tauthenticator.sh secret
+
+    # Using GPG-encrypted secret (recommended)
+    tauthenticator.sh secret
+
+See ``tauthenticator.sh`` and ``unsafe-tauthenticator.sh`` for details.
 
 Generating a Secret Key
 ~~~~~~~~~~~~~~~~~~~~~~~

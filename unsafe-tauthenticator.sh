@@ -1,27 +1,24 @@
 #!/bin/sh
 
-# This is simpler but unsafe, consider tauthenticator.sh.
+# This is simpler but unsafe, consider using 'tauthenticator.sh' instead.
 #
-# Simple setup:
-# 1. Scan the QR code, take the secret param. For example, if the scanned URI
-#    is "otpauth://totp/...?secret=ABC&issuer=..." then the secret is "ABC".
-# 2. Put the secret in a file in `secret/` directory, it's recommended to
-#    name it `secret/default`.
+# Setup:
+# 1. Scan the OTP QR code, copy the result.
+#    - It should be an URI like "otpauth://totp/...?secret=ABC&issuer=...".
+# 2. Put the URI in a file, e.g. 'secret.txt'.
 #
-# Simple usage:
-# 1. If you put the secret in `secret/default`, simply run
-#    `./unsafe-tauthenticator.sh`.
-# 2. If, for example, you put it in `secret/something`, run
-#    `./unsafe-tauthenticator.sh something`.
+# Usage:
+# 1. Run:
+#        unsafe-tauthenticator.sh [SECRET_FILE]
+#    If not specified, 'SECRET_FILE' is 'secret.txt' by default.
+# 2. Press Ctrl+C to exit.
 
-secret_file=${1:-default}
+secret_file="${1:-secret.txt}"
 
-cd $(dirname "$0")/src
+export PYTHONPATH=$(dirname "$0")/src
 while true; do
-  script='import pyotp; o = pyotp.TOTP(input()).now(); print(o[:3], o[3:])'
-  otp=$(python3 -c "$script" < "../secret/$secret_file")
+  otp=$(python3 -Pm pyotp < "$secret_file")
   [ "$otp" = "$old_otp" ] || echo "$otp"
   old_otp="$otp"
-  sleep 5
+  sleep 1
 done
-

@@ -1,29 +1,24 @@
 #!/bin/sh
 
-# This requires `gpg`.
-#
 # Setup:
-# 1. Scan the QR code, take the secret param. For example, if the scanned URI
-#    is "otpauth://totp/...?secret=ABC&issuer=..." then the secret is "ABC".
-# 2. GPG-encrypt the secret and put it in a file in `secret/` directory, it's
-#    recommended to name it `secret/default`. For example:
-#    `gpg -er USER_ID > secret/default`, enter the secret, press Ctrl+D.
+# 1. Make sure you have 'gpg' installed.
+# 2. Scan the OTP QR code, copy the result.
+#    - It should be an URI like "otpauth://totp/...?secret=ABC&issuer=...".
+# 3. Encrypt the URI using 'gpg' into a file.
+#    - Example: Run 'gpg -er USER_ID > secret.gpg', paste the URI, and press Ctrl+D.
 #
 # Usage:
-# 1. If you put the secret in `secret/default`, simply run
-#    `./tauthenticator.sh`.
-# 2. If, for example, you put it in `secret/something`, run
-#    `./tauthenticator.sh something`.
-# 3. Press Ctrl+C to close.
+# 1. Run:
+#        tauthenticator.sh [SECRET_FILE]
+#    If not specified, 'SECRET_FILE' is 'secret.gpg' by default.
+# 2. Press Ctrl+C to exit.
 
-secret_file=${1:-default}
+secret_file="${1:-secret.gpg}"
 
-cd $(dirname "$0")/src
+export PYTHONPATH=$(dirname "$0")/src
 while true; do
-  script='import pyotp; o = pyotp.TOTP(input()).now(); print(o[:3], o[3:])'
-  otp=$(gpg -dq "../secret/$secret_file" | python3 -c "$script")
+  otp=$(gpg -dq "$secret_file" | python3 -Pm pyotp)
   [ "$otp" = "$old_otp" ] || echo "$otp"
   old_otp="$otp"
-  sleep 5
+  sleep 1
 done
-
